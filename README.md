@@ -27,7 +27,7 @@ The entire process runs locally with zero external AI service dependencies—all
 
 https://github.com/user-attachments/assets/ce9ef812-35ab-409d-a63a-c5bdd1717280
 
-Note: The whole documai process may take much longer depending on your machine ressources and chosen model.
+<strong>Note: </strong> The whole documai process may take much longer depending on your machine ressources and chosen model.
 
 ## Prerequisites
 

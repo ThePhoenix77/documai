@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Documai - Generate README</title>
+    <style>
+      body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 16px; }
+      label { display:block; margin-top:12px; font-weight:600 }
+      input[type=text], textarea { width:100%; padding:8px; box-sizing:border-box }
+      button { margin-top:12px; padding:8px 14px }
+      #result { height: 400px; }
+      .hint { color: #555; font-size: 0.95rem; line-height: 1.4; }
+      .loader {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        margin-top: 16px;
+        padding: 12px 14px;
+        border: 1px solid #d8d8d8;
+        border-radius: 10px;
+        background: #fafafa;
+      }
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border: 3px solid #d0d0d0;
+        border-top-color: #2563eb;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .status { font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h1>Documai — AI README Agent</h1>
+    <p>Enter a GitHub repository URL and a GitHub Personal Access Token (PAT). The app will analyze the repository and generate a README.</p>
+    <p class="hint">Note: <strong>http://127.0.0.1:11434/api/generate</strong> is a POST-only API. Opening it directly in the browser shows <strong>405 Method Not Allowed</strong>, which is expected. This app calls it from the backend for you.</p>
+
+    <form id="form">
+      <label for="repoUrl">Repository URL</label>
+      <input id="repoUrl" name="repoUrl" type="text" placeholder="https://github.com/owner/repo" required />
+
+      <label for="pat">GitHub PAT (kept local only)</label>
+      <input id="pat" name="pat" type="text" placeholder="ghp_xxx or github_pat_xxx" />
+
+      <button id="submit">Generate README</button>
+    </form>
+
+    <div id="loader" class="loader" aria-live="polite" aria-busy="true">
+      <div class="spinner"></div>
+      <div>
+        <div class="status">Generating README...</div>
+        <div class="hint">Fetching repository files and waiting on the local model.</div>
+      </div>
+    </div>
+
+    <h2>Generated README</h2>
+    <textarea id="result" readonly></textarea>
+    <div>
+      <button id="download" style="display:none">Download README.md</button>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

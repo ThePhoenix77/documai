@@ -23,7 +23,11 @@ The entire process runs locally with zero external AI service dependencies—all
 - **Download-ready**: Generated READMEs download as markdown files
 
 ## Demo
-<img width="1822" height="1185" alt="documai-demo" src="https://github.com/user-attachments/assets/79104960-739d-49fe-93c6-e3ba0df46e28" />
+
+
+https://github.com/user-attachments/assets/ce9ef812-35ab-409d-a63a-c5bdd1717280
+
+Note: The whole documai process may take much longer depending on your machine ressources and chosen model.
 
 ## Prerequisites
 

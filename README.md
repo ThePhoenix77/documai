@@ -22,6 +22,9 @@ The entire process runs locally with zero external AI service dependencies—all
 - **Customizable**: Pass a GitHub PAT for private repository access
 - **Download-ready**: Generated READMEs download as markdown files
 
+## Demo
+<img width="1822" height="1185" alt="documai-demo" src="https://github.com/user-attachments/assets/79104960-739d-49fe-93c6-e3ba0df46e28" />
+
 ## Prerequisites
 
 Before using Documai, ensure you have:

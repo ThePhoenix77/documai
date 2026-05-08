@@ -1,0 +1,455 @@
+{
+  "name": "generate-readme",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-readme",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        656,
+        16
+      ],
+      "id": "33bbd144-29e7-4640-82bf-badea70cd2aa",
+      "name": "Webhook",
+      "webhookId": "577d06a3-8efe-46ac-bef3-aa32d91830cb"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json.body || $json;\n\nconst url = input.repoUrl;\n\nconst match = url.match(/github\\.com\\/([^\\/]+)\\/([^\\/]+)/);\n\nif (!match) {\n  throw new Error(\"Invalid GitHub URL\");\n}\n\nreturn {\n  owner: match[1],\n  repo: match[2],\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        16
+      ],
+      "id": "b5744109-270f-4a88-889e-fed7c5c4a0f8",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{$json.owner}}/{{$json.repo}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.GITHUB_PAT }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1072,
+        16
+      ],
+      "id": "cf78794b-0b02-473c-a549-c7a8f00e7ff1",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{$json.owner.login}}/{{$json.name}}/git/trees/{{$json.default_branch}}?recursive=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.GITHUB_PAT }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1280,
+        16
+      ],
+      "id": "0705d280-b20e-4ad5-9578-5dda642b4bb7",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const tree = $json.tree;\n\nconst importantExtensions = [\n  '.js', '.ts', '.jsx', '.tsx',\n  '.py', '.java', '.go',\n  '.rs', '.php', '.cpp',\n  '.c', '.h', '.hpp',\n  '.cs', '.rb'\n];\n\nconst importantFiles = [\n  // 'package.json',\n  'requirements.txt',\n  // 'Dockerfile',\n  // 'docker-compose.yml'\n];\n\nconst ignoredFolders = [\n  'node_modules',\n  'dist',\n  'build',\n  '.git',\n  'coverage',\n  '__pycache__'\n];\n\nconst filtered = tree.filter(file => {\n  const path = file.path;\n\n  if (file.type !== 'blob') return false;\n\n  if (ignoredFolders.some(folder => path.includes(folder))) {\n    return false;\n  }\n\n  if (importantFiles.some(name => path.endsWith(name))) {\n    return true;\n  }\n\n  if (importantExtensions.some(ext => path.endsWith(ext))) {\n    return true;\n  }\n\n  return false;\n});\n\nreturn {\n  importantFiles: filtered.slice(0, 20)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        16
+      ],
+      "id": "149753f1-ddeb-43bd-a646-2928193d715b",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const importantFiles = $json.importantFiles;\n\nconst owner = $('HTTP Request1').first().json.owner.login;\nconst repo = $('HTTP Request1').first().json.name;\nconst branch = $('HTTP Request1').first().json.default_branch;\n\nreturn importantFiles.map(file => ({\n  json: {\n    owner,\n    repo,\n    path: file.path,\n    branch\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        16
+      ],
+      "id": "ea0dde4d-7b91-44cc-9223-9173ea212481",
+      "name": "Code in JavaScript2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{$json.owner}}/{{$json.repo}}/contents/{{$json.path}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.GITHUB_PAT }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1184,
+        272
+      ],
+      "id": "8af52fc3-739e-42e1-ac75-25ba115e69f2",
+      "name": "HTTP Request3",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const decoded = Buffer\n  .from($json.content || '', 'base64')\n  .toString('utf-8');\n\nconst previous = $('Code in JavaScript2').item.json;\n\nreturn {\n  owner: previous.owner,\n  repo: previous.repo,\n  branch: previous.branch,\n  path: previous.path,\n\n  content: decoded.slice(0, 1500)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        272
+      ],
+      "id": "87c5a094-8341-4fdd-bce0-432b4eb8c5cd",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:11434/api/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "mistral"
+            },
+            {
+              "name": "stream",
+              "value": "={{false}}"
+            },
+            {
+              "name": "prompt",
+              "value": "==`You are analyzing this GitHub repository: {{$json.owner}}/{{$json.repo}}\nFile path: {{$json.path}}\nCode:\n{{$json.content}}\nExplain:\n1. What this file does\n2. Technologies/frameworks involved\n3. Important architectural insights\n4. Short concise summary\n`"
+            }
+          ]
+        },
+        "options": {
+          "timeout": "={{ 3600000 }}"
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1584,
+        272
+      ],
+      "id": "06c5032c-1304-41db-8abd-217cf4bafb5b",
+      "name": "HTTP Request4",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const combined = items.map(item => {\n  return `\nFILE: ${item.json.path}\n\nSUMMARY:\n${item.json.response}\n`;\n}).join('\\n\\n-------------------\\n\\n');\n\nconst first = items[0].json;\n\nreturn [\n  {\n    json: {\n      owner: first.owner,\n      repo: first.repo,\n      repositoryAnalysis: combined\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        272
+      ],
+      "id": "1e3da925-5a3b-42fc-8041-411f171c58e6",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:11434/api/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "mistral"
+            },
+            {
+              "name": "stream",
+              "value": "={{ false }}"
+            },
+            {
+              "name": "prompt",
+              "value": "==`You are a senior software engineer and technical writer.\n\nGenerate a professional, polished, production-quality GitHub README.md.\n\nRepository Information:\n- Repository Owner: {{$json.owner}}\n- Repository Name: {{$json.repo}}\n\nRepository Analysis:\n{{$json.repositoryAnalysis}}\n\nInstructions:\n- Use the EXACT repository name provided above as the project title\n- Do NOT invent repository names\n- Do NOT invent technologies that are not mentioned in the analysis\n- Do NOT fabricate installation steps\n- If installation steps are unclear, provide generic setup instructions and clearly label assumptions\n- Infer the project architecture carefully from the provided analysis\n- Keep the README concise, professional, and developer-friendly\n- Use proper markdown formatting\n- Use sections and bullet points where appropriate\n- Output ONLY valid markdown\n\nThe README should include:\n\n# {{$json.repo}}\n---\n## Overview\nExplain what the project does and its purpose.\n\n## Features\nList the key features and capabilities.\n\n## Technologies Used\nList frameworks, languages, tools, and infrastructure detected.\n\n## Architecture\nSummarize the repository structure and architecture.\n\n## Installation\nProvide realistic installation/setup instructions.\n\n## Usage\nExplain how to run or use the project.\n\n## WWorkflow\nExplain how this project works step by step in full details for each step.\n\n## Project Structure\nSummarize important folders/files.\n\n## Conclusion\nProvide a short closing summary.\n\nOutput ONLY markdown.`"
+            }
+          ]
+        },
+        "options": {
+          "timeout": "={{ 360000 }}"
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2192,
+        16
+      ],
+      "id": "01556af1-b65f-4566-8c12-e5e682d15759",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const original = $json;\n\n// Get repo metadata from the flatten node\nconst metadata = $('Code in JavaScript2').item.json;\n\nreturn {\n  owner: metadata.owner,\n  repo: metadata.repo,\n  branch: metadata.branch,\n  ...original\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        272
+      ],
+      "id": "57d5864e-6afe-46fd-b43d-b118a5d79b4c",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const repo = $json.repo;\nconst owner = $json.owner;\n\n// Ollama response\nconst generated = $json.response || '';\n\n// Remove any wrong/generated title\nconst cleaned = generated.replace(/^# .*\\n/, '');\n\nconst finalReadme = `# ${repo}\n\n> Repository: https://github.com/${owner}/${repo}\n\n${cleaned}`;\n\nreturn {\n  owner,\n  repo,\n  readme: finalReadme\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2576,
+        16
+      ],
+      "id": "4698076e-873b-4bad-9923-082a5687b0ed",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "jsCode": "const original = $json;\n\n// Get repo metadata from the flatten node\nconst metadata = $('Code in JavaScript6').item.json;\n\nreturn {\n  owner: metadata.owner,\n  repo: metadata.repo,\n  ...original\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        16
+      ],
+      "id": "234b2f0e-c533-4e72-8255-9d15892590c8",
+      "name": "Code in JavaScript7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e00d2357-696b-4d15-b16f-4b7689de9480",
+  "meta": {
+    "instanceId": "7e761e06320b80a60a4a363c8ab21d0e1a18e3ffa0b463315bf04e53bddc142d"
+  },
+  "id": "yf1oPBF8IqBq1ing",
+  "tags": []
+}

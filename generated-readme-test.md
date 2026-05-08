@@ -4,30 +4,23 @@
 
  # ai-twitter-bot
 
-Welcome to the **ai-twitter-bot** repository! This project aims to create an AI-powered Twitter bot that fetches news articles, summarizes them using machine learning, and tweets out engaging content based on those summaries.
+Welcome to the `ai-twitter-bot` repository! This project aims to create an AI-powered Twitter bot that fetches news articles related to specific niches, summarizes them using a pre-trained model, and posts unique tweets containing excerpts or summaries of the articles on Twitter.
 
 ## Overview
-
-The `ai-twitter-bot` is a Python script that leverages several libraries to accomplish its goals. It includes modules for fetching news articles, article summarization, storage of tweet history, and posting tweets on Twitter. The bot is designed to avoid sending duplicate tweets and maintain a record of its previous posts.
+The `ai-twitter-bot` is built using Python as the primary programming language. It interacts with the Twitter platform through the Twitter API, while utilizing several libraries for various tasks such as fetching news data from APIs, text summarization, and handling environment variables securely. The bot fetches articles based on niche keywords, processes them using an AI model, and posts unique tweets containing excerpts or summaries of the articles.
 
 ## Features
-
-- Fetching news articles using an external API
-- Summarizing articles with machine learning techniques (BART large CNN)
-- Generating engaging tweets based on summaries
-- Scheduling and posting tweets on Twitter
-- Storing and loading tweet history for maintaining unique tweets
+- Fetches news articles based on specific niches from a News API
+- Utilizes an AI model for summarizing news articles
+- Schedules tweets to post these summaries along with original article links
+- Stores tweet data for future reference and organization
 
 ## Technologies Used
-
-- Python: Primary programming language used for scripting the bot
-- requests: HTTP library for making network requests
-- dotenv: Library that helps manage environment variables securely
-- Transformers (Hugging Face): Pre-trained models for NLP tasks like summarization
-- Torch: Machine learning library based on TorchScript and TorchScript JIT compiler
-- Sentencepiece: Simple sentence piece BPE tokenizer developed by Hugging Face
-- Tweety-ns: Python library for posting tweets on Twitter
-- Tweepy: Unofficial Python library for accessing the Twitter API
+- Python
+- requests: For making HTTP requests and fetching news data from the News API
+- dotenv: For managing environment variables securely
+- Transformers, Torch, Sentencepiece: Part of Hugging Face's Transformers library for natural language processing tasks like summarization (using the BART large CNN model in this case)
+- Tweepy and tweety-ns: For interacting with Twitter API endpoints
 
 ## Architecture
 
@@ -52,7 +45,13 @@ To install this project's dependencies, follow these steps:
    pip install -r requirements.txt
    ```
 
-4. Set up environment variables by creating a `.env` file and populating it with your Twitter API keys and access tokens.
+4. Set up environment variables by creating a `.env` file and populating it with your Twitter API keys and access tokens as follows:
+    ```
+    TWITTER_API_KEY=<Your Twitter API Key>
+    TWITTER_API_SECRET_KEY=<Your Twitter API Secret Key>
+    TWITTER_ACCESS_TOKEN=<Your Twitter Access Token>
+    TWITTER_ACCESS_TOKEN_SECRET=<Your Twitter Access Token Secret>
+    ```
 
 ## Usage
 

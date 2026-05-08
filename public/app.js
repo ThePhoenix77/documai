@@ -5,6 +5,7 @@ const loader = document.getElementById('loader');
 const inputs = [
   document.getElementById('repoUrl'),
   document.getElementById('pat'),
+  document.getElementById('model'),
   document.getElementById('submit')
 ];
 
@@ -24,6 +25,7 @@ form.addEventListener('submit', async (e) => {
 
   const repoUrl = document.getElementById('repoUrl').value.trim();
   const pat = document.getElementById('pat').value.trim();
+  const model = document.getElementById('model').value.trim();
 
   if (!repoUrl) {
     alert('Repository URL is required');
@@ -36,7 +38,7 @@ form.addEventListener('submit', async (e) => {
     const resp = await fetch('/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ repoUrl, pat })
+      body: JSON.stringify({ repoUrl, pat, model })
     });
 
     const data = await resp.json();

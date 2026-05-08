@@ -3,14 +3,35 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Documai - Generate README</title>
+    <title>Documai — README Agent</title>
     <style>
-      body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 16px; }
+      body {
+        background-color: #fffaea;
+        font-family: Arial, sans-serif;
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 16px;
+        line-height: 1.5;
+        color: #111827;
+      }
+      h1, h2 { margin-bottom: 0.4rem; }
+      .card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff6d9;
+        padding: 16px;
+        margin: 16px 0;
+      }
+      .steps {
+        margin: 0;
+        padding-left: 20px;
+      }
+      .steps li { margin: 6px 0; }
       label { display:block; margin-top:12px; font-weight:600 }
-      input[type=text], textarea { width:100%; padding:8px; box-sizing:border-box }
+      input[type=text], textarea, select { width:100%; padding:8px; box-sizing:border-box }
       button { margin-top:12px; padding:8px 14px }
       #result { height: 400px; }
-      .hint { color: #555; font-size: 0.95rem; line-height: 1.4; }
+      .hint { color: #6b7280; font-size: 0.95rem; margin: 8px 0 0; }
       .loader {
         display: none;
         align-items: center;
@@ -34,9 +55,21 @@
     </style>
   </head>
   <body>
-    <h1>Documai — AI README Agent</h1>
-    <p>Enter a GitHub repository URL and a GitHub Personal Access Token (PAT). The app will analyze the repository and generate a README.</p>
-    <p class="hint">Note: <strong>http://127.0.0.1:11434/api/generate</strong> is a POST-only API. Opening it directly in the browser shows <strong>405 Method Not Allowed</strong>, which is expected. This app calls it from the backend for you.</p>
+    <h1>Documai</h1>
+    <p class="hint">Generate a README from any GitHub repo in a few seconds.</p>
+
+    <h2>How to use</h2>
+    <div class="card">
+      <ol class="steps">
+        <li>Paste the GitHub repository URL.</li>
+        <li>Add your GitHub PAT if the repo needs access.</li>
+        <li>Choose your local Ollama model and click <strong>Generate README</strong>.</li>
+      </ol>
+      <p class="hint"><strong>Note: </strong>Documai only works when a local model is running, such as <strong>Ollama</strong>. This project was built and tested with the <strong>mistral</strong> model.</p>
+      <!-- <ol class="steps" start="4">
+        <li>Download the generated README.</li>
+      </ol> -->
+    </div>
 
     <form id="form">
       <label for="repoUrl">Repository URL</label>
@@ -44,6 +77,14 @@
 
       <label for="pat">GitHub PAT (kept local only)</label>
       <input id="pat" name="pat" type="text" placeholder="ghp_xxx or github_pat_xxx" />
+
+      <label for="model">Local model</label>
+      <select id="model" name="model">
+        <option value="mistral" selected>mistral</option>
+        <option value="llama3.2">llama3.2</option>
+        <option value="deepseek-r1:14b">deepseek-r1:14b</option>
+      </select>
+      <p class="hint">Default: <strong>mistral</strong></p>
 
       <button id="submit">Generate README</button>
     </form>
@@ -56,7 +97,7 @@
       </div>
     </div>
 
-    <h2>Generated README</h2>
+    <h2 style="margin-top: 24px;">Generated README</h2>
     <textarea id="result" readonly></textarea>
     <div>
       <button id="download" style="display:none">Download README.md</button>

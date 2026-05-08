@@ -42,8 +42,9 @@ async function ghGet(url, pat) {
 
 async function generatePrompt(promptBody) {
   const promptText = typeof promptBody === 'string' ? promptBody : (promptBody && promptBody.prompt) || String(promptBody);
+  const modelName = (promptBody && promptBody.model) || OLLAMA_MODEL;
   const payload = {
-    model: OLLAMA_MODEL,
+    model: modelName,
     stream: false,
     prompt: promptText
   };
@@ -60,7 +61,7 @@ async function generatePrompt(promptBody) {
 
 app.post('/generate', async (req, res) => {
   try {
-    const { pat, repoUrl } = req.body;
+    const { pat, repoUrl, model } = req.body;
     if (!repoUrl) return res.status(400).json({ error: 'repoUrl is required' });
 
     const parsed = parseRepoUrl(repoUrl);
@@ -85,7 +86,7 @@ app.post('/generate', async (req, res) => {
 
         const prompt = `You are analyzing this GitHub repository: ${owner}/${repo}\nFile path: ${file.path}\nCode:\n${decoded}\nExplain:\n1. What this file does\n2. Technologies/frameworks involved\n3. Important architectural insights\n4. Short concise summary\n`;
 
-        const gen = await generatePrompt({ prompt });
+        const gen = await generatePrompt({ prompt, model });
         const responseText = (gen && gen.response) || JSON.stringify(gen);
 
         fileSummaries.push({ path: file.path, summary: responseText });
@@ -98,7 +99,7 @@ app.post('/generate', async (req, res) => {
 
     const finalPrompt = `You are a senior software engineer and technical writer.\n\nGenerate a professional, polished, production-quality GitHub README.md.\n\nRepository Information:\n- Repository Owner: ${owner}\n- Repository Name: ${repo}\n\nRepository Analysis:\n${combined}\n\nInstructions:\n- Use the EXACT repository name provided above as the project title\n- Do NOT invent repository names\n- Do NOT invent technologies that are not mentioned in the analysis\n- Do NOT fabricate installation steps\n- If installation steps are unclear, provide generic setup instructions and clearly label assumptions\n- Infer the project architecture carefully from the provided analysis\n- Keep the README concise, professional, and developer-friendly\n- Use proper markdown formatting\n- Output ONLY valid markdown\n\nThe README should include sections: Overview, Features, Technologies Used, Architecture, Installation, Usage, Workflow, Project Structure, Conclusion.`;
 
-    const finalGen = await generatePrompt({ prompt: finalPrompt });
+    const finalGen = await generatePrompt({ prompt: finalPrompt, model });
     const finalText = (finalGen && finalGen.response) || JSON.stringify(finalGen);
 
     const readme = `# ${repo}\n\n> Repository: https://github.com/${owner}/${repo}\n\n${finalText}`;

@@ -2,6 +2,16 @@
 
 An intelligent README generator that analyzes GitHub repositories and creates professional documentation using local AI models. Built with Node.js, Express, and Ollama.
 
+## Demo
+
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/ce9ef812-35ab-409d-a63a-c5bdd1717280" controls width="100%"></video>
+</div>
+
+**Note:** The whole documai process may take much longer depending on your machine ressources and chosen model.
+
+You can check documai's full version of the generated markdown documentation seen in the above demo video [here](https://github.com/ThePhoenix77/documai/blob/main/generated-readme-test.md).
+
 ## Overview
 
 Documai is a web-based AI agent that automatically generates high-quality README files for any GitHub repository. Instead of manually writing documentation, simply provide a repository URL, and Documai will:
@@ -21,16 +31,6 @@ The entire process runs locally with zero external AI service dependencies—all
 - **Easy to use**: Simple web interface for non-technical users
 - **Customizable**: Pass a GitHub PAT for private repository access
 - **Download-ready**: Generated READMEs download as markdown files
-
-## Demo
-
-**Note:** The whole documai process may take much longer depending on your machine ressources and chosen model.
-
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/ce9ef812-35ab-409d-a63a-c5bdd1717280" controls width="100%"></video>
-</div>
-
-You can check documai's full version of the generated markdown documentation seen in the above demo video [here](https://github.com/ThePhoenix77/documai/blob/main/generated-readme-test.md).
 
 ## Prerequisites
 

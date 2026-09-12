@@ -26,7 +26,9 @@ The entire process runs locally with zero external AI service dependencies—all
 
 **Note:** The whole documai process may take much longer depending on your machine ressources and chosen model.
 
-https://github.com/user-attachments/assets/ce9ef812-35ab-409d-a63a-c5bdd1717280
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/ce9ef812-35ab-409d-a63a-c5bdd1717280" controls width="100%"></video>
+</div>
 
 You can check documai's full version of the generated markdown documentation seen in the above demo video [here](https://github.com/ThePhoenix77/documai/blob/main/generated-readme-test.md).
 
